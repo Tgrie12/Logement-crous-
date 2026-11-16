@@ -108,7 +108,9 @@ def main():
             send_mail(f"🏠 CROUS Caen : {l['titre']} – {l['loyer']}",
                       f"{l['titre']}\nRésidence : {l['residence']}\nAdresse : {l['adresse']}\n"
                       f"Surface : {l['surface']} m²\nLoyer : {l['loyer']}\n\nVoir/réserver : {l['url']}")
-    STATE.write_text(json.dumps(sorted({str(l['id']) for l in current} | seen)))
+    # On ne garde que les logements actuellement en ligne : un logement qui disparaît
+    # puis réapparaît sera donc signalé à nouveau.
+    STATE.write_text(json.dumps(sorted({str(l['id']) for l in current})))
     print(f"{len(current)} logements, {len(new)} nouveaux")
 
 
