@@ -1,0 +1,25 @@
+name: Surveillance CROUS Caen
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python crous_watch.py
+        env:
+          SEARCH_ID: ${{ vars.SEARCH_ID }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+      - name: Sauvegarder l'état
+        run: |
+          git config user.name "crous-bot"; git config user.email "bot@users.noreply.github.com"
+          git add logements_vus.json
+          git diff --cached --quiet || (git commit -m "maj logements vus" && git push)
